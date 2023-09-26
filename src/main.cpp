@@ -25,14 +25,14 @@ void help() {
   std::cout << "\nHTTP server will ignore all other arguments:\n";
   std::cout << "  --http      -H  - Start HTTP server\n";
   std::cout
-      << "  --address   -a  - HTTP server address (defaults to 0.0.0.0)\n";
+      << "  --address   -a  - HTTP server address (defaults to 127.0.0.1)\n";
   std::cout << "  --port      -p  - HTTP server port (defaults to 8080)\n";
 }
 
 struct ImageOptions {
   std::string imagePath;
   std::string outputPath;
-  std::string Addr = "0.0.0.0";
+  std::string Addr = "127.0.0.1";
   int Port = 8080;
   bool useHTTP = false;
   std::vector<std::string> operations; // Store the specified operations
@@ -55,23 +55,17 @@ ImageOptions parseCommandLine(int argc, char *argv[]) {
 
   // Iterate through the command-line arguments
   for (auto it = args.begin(); it != args.end(); it++) {
+    std::cout << *it << std::endl;
     if (*it == "-h" || *it == "--help") {
       help();
       exit(0);
     } else if (*it == "-H" || *it == "--http") {
       opts.useHTTP = true;
-      it++;
     } else if (*it == "-a" || *it == "--address") {
-      if (std::next(it) == args.end()) {
-        continue;
-      }
       const char *next_arg = std::next(it)->c_str();
       opts.Addr = next_arg;
       it++;
     } else if (*it == "-p" || *it == "--port") {
-      if (std::next(it) == args.end()) {
-        continue;
-      }
       const char *next_arg = std::next(it)->c_str();
       opts.Port = std::atoi(next_arg);
       it++;
@@ -136,7 +130,12 @@ int main(int argc, char **argv) {
     std::cout << "Starting HTTP server at " << opts.Addr << ":" << opts.Port
               << std::endl;
     crow::SimpleApp app;
-    // TODO: Create route that accepts image
+    CROW_ROUTE(app, "/test")
+    ([](const crow::request &req) {
+      crow::multipart::message msg(req);
+      CROW_LOG_INFO << "first part's body" << msg.parts[0].body;
+      return "Yatta";
+    });
     app.bindaddr(opts.Addr).port(opts.Port).run();
   }
   // Do local image manipulation if HTTP is not used
