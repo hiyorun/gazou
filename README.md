@@ -8,3 +8,11 @@ On Arch Linux, you can use:
 ```
 yay -S crow imagemagick
 ```
+
+## Building
+Create a new folder called `build` and then
+```
+cmake -B build .
+make -C build
+```
+The executable called `gazou` will be available inside the `build` directory.
