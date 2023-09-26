@@ -5,7 +5,11 @@
 #include <iostream>
 
 void ImageManipulator::resize(Magick::Image &image, const std::string &size) {
-  image.resize(size);
+  try {
+    image.resize(size);
+  } catch (Magick::Exception &e) {
+    std::cerr << e.what() << std::endl;
+  }
 }
 
 void ImageManipulator::crop(Magick::Image &image,
