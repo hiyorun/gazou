@@ -1,7 +1,9 @@
+#include "Magick++/Functions.h"
+#include "Magick++/Geometry.h"
+#include <Magick++.h>
 #include <crow.h>
 #include <filesystem>
 #include <iostream>
-#include <ostream>
 #include <vector>
 
 void help() {
@@ -36,9 +38,9 @@ ImageOptions parseCommandLine(int argc, char *argv[]) {
   }
 
   std::vector<std::string> args{argv + 1, argv + argc};
-  args.push_back("a");
 
   for (auto it = args.begin(); it != args.end(); it++) {
+    std::cout << "debug iterator" << *it << std::endl;
     if (*it == "-h" || *it == "--help") {
       help();
       exit(0);
@@ -97,8 +99,10 @@ ImageOptions parseCommandLine(int argc, char *argv[]) {
   return opts;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
+  Magick::InitializeMagick(*argv);
   ImageOptions opts = parseCommandLine(argc, argv);
+  Magick::Image image;
   // start crow web server if opts.useHTTP is true
   if (opts.useHTTP) {
     std::cout << "Starting HTTP server at " << opts.Addr << ":" << opts.Port
@@ -109,6 +113,9 @@ int main(int argc, char *argv[]) {
   }
   // do local image manipulation if HTTP not used
   else {
-    // TODO create function that accepts input and output path to image
+    image.read(opts.imagePath);
+    image.resize("100x100");
+    image.write(opts.outputPath);
   }
+  return 0;
 }
